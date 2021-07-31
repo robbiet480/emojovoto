@@ -23,7 +23,6 @@ package cmd
 
 import (
 	"encoding/json"
-	"fmt"
 	"sort"
 	"strings"
 	"time"
@@ -90,9 +89,27 @@ func init() {
 }
 
 func createEmojoMessage(s *discordgo.Session, channelId string, emojo *Emoji) error {
-	msgContent := fmt.Sprintf("Vote here for the %s emojo (name: `%s`, id: `%s`), added by %s", emojo.MessageFormat(), emojo.Name, emojo.ID, emojo.User.Username)
 	msg := &discordgo.MessageSend{
-		Content: msgContent,
+		Content: emojo.MessageFormat(),
+		Embed: &discordgo.MessageEmbed{
+			Fields: []*discordgo.MessageEmbedField{
+				{
+					Name:   "Name",
+					Value:  emojo.Name,
+					Inline: true,
+				},
+				{
+					Name:   "ID",
+					Value:  emojo.ID,
+					Inline: true,
+				},
+				{
+					Name:   "Added By",
+					Value:  emojo.User.Username,
+					Inline: true,
+				},
+			},
+		},
 	}
 
 	sentMsg, msgErr := s.ChannelMessageSendComplex(channelId, msg)

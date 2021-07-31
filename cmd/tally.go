@@ -23,7 +23,6 @@ package cmd
 
 import (
 	"os"
-	"regexp"
 	"sort"
 	"strings"
 
@@ -56,21 +55,10 @@ var tallyCmd = &cobra.Command{
 				continue
 			}
 
-			matches := tallyMsgRegex.FindAllStringSubmatch(msg.Content, -1)
-
-			if len(matches) == 0 {
-				log.Warnf("Skipping message %d of %d as it isn't in the expected format", idx+1, len(messages))
-				continue
-			}
-
-			log.Infof("Processing message %d of %d: %s", idx+1, len(messages), msg.ID)
-
-			match := matches[0]
-
 			resp := TallyResult{
-				EmojiID:      match[2],
-				EmojiName:    match[1],
-				EmojiAddedBy: match[3],
+				EmojiID:      msg.Embeds[0].Fields[1].Value,
+				EmojiName:    msg.Embeds[0].Fields[0].Value,
+				EmojiAddedBy: msg.Embeds[0].Fields[2].Value,
 			}
 
 			for _, react := range msg.Reactions {
@@ -129,8 +117,6 @@ var tallyCmd = &cobra.Command{
 		log.Infoln("Saved to", resultsFileName)
 	},
 }
-
-var tallyMsgRegex = regexp.MustCompile(`Vote here for the <a?:(.*):(.*)> emojo .*, added by (.*)`)
 
 func init() {
 	rootCmd.AddCommand(tallyCmd)
